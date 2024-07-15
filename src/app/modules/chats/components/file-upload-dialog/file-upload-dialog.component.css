@@ -2,8 +2,105 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 10px;
+    padding: 20px;
+        /* Increased padding for better spacing */
     background: white;
+    border: 1px solid #ddd;
+        /* Lighter border for a softer look */
+        border-radius: 8px;
+        /* More rounded corners */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        /* Added subtle shadow for depth */
+        width: 300px;
+        /* Fixed width for consistency */
+        max-width: 90%;
+        /* Responsive design */
+        margin: auto;
+        /* Centered alignment */
+        animation: fadeIn 0.3s ease-in-out;
+        /* Smooth fade-in animation */
+    }
+    
+    .file-upload-popup input[type="file"] {
+        margin-bottom: 15px;
+        /* Spacing between file input and buttons */
+        padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
+    font-size: 14px;
+        /* Font size adjustment */
+        width: 100%;
+        /* Full width */
+    }
+    
+    .file-upload-popup button {
+        width: 100%;
+        /* Full width buttons */
+        padding: 10px;
+        /* Padding for better size */
+        margin: 5px 0;
+        /* Spacing between buttons */
+        border: none;
+        /* Remove default border */
+        border-radius: 4px;
+        /* Rounded corners */
+        font-size: 16px;
+        /* Font size adjustment */
+        font-weight: 600;
+        /* Bold text */
+        cursor: pointer;
+        /* Pointer cursor on hover */
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        /* Smooth transitions */
+    }
+    
+    .file-upload-popup button:first-of-type {
+        background-color: #007bff;
+        /* Primary color */
+        color: white;
+        /* White text */
+    }
+    
+    .file-upload-popup button:first-of-type:hover {
+        background-color: #0056b3;
+        /* Darker shade on hover */
+        transform: scale(1.05);
+        /* Slightly larger on hover */
+    }
+    
+    .file-upload-popup button:first-of-type:active {
+        background-color: #004494;
+        /* Even darker shade on active */
+        transform: scale(0.95);
+        /* Slightly smaller on active */
+    }
+    
+    .file-upload-popup button:last-of-type {
+        background-color: #dc3545;
+        /* Danger color */
+        color: white;
+        /* White text */
+}
+.file-upload-popup button:last-of-type:hover {
+    background-color: #b21f2d;
+    /* Darker shade on hover */
+    transform: scale(1.05);
+    /* Slightly larger on hover */
+}
+
+.file-upload-popup button:last-of-type:active {
+    background-color: #8c1a23;
+    /* Even darker shade on active */
+    transform: scale(0.95);
+    /* Slightly smaller on active */
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }

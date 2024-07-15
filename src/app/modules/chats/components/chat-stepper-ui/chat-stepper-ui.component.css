@@ -3,7 +3,6 @@
     flex-direction: column;
     width: 100%;
     max-width: 600px;
-    /* Adjust as per your layout */
     margin: auto;
     padding: 20px;
     border: 1px solid #ccc;
@@ -11,10 +10,7 @@
     background-color: #f9f9f9;
 }
 
-.dp-upload-container {
-    margin-bottom: 10px;
-}
-
+.dp-upload-container,
 .user-container {
     margin-bottom: 10px;
 }
@@ -22,7 +18,6 @@
 .message-container {
     display: flex;
     justify-content: flex-start;
-    /* Messages are left-aligned by default */
     margin-bottom: 10px;
 }
 
@@ -30,23 +25,37 @@
     display: flex;
     flex-direction: column;
     max-width: 80%;
-    /* Adjust as per your layout */
+    border-radius: 8px;
+        background: #f5f5f5;
+        border: 1px solid #82fff9;
+        /* Default border color */
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        /* Add box-shadow transition */
+        /* Smooth transition for border color */
+        padding: 10px;
+        position: relative;
+        /* Ensure position context for absolute positioning of menu */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        /* Add subtle box-shadow */
 }
 
-/* .user-info {
-    display: flex;
-    align-items: center;
-    margin-bottom: 5px;
-} */
+.message-content:hover {
+    border-color: #002aff;
+    /* Border color on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    /* Enhance box-shadow on hover */
+}
+
+.message-content:hover {
+    border-color: #002aff;
+    /* Border color on hover */
+}
 
 .user-dp {
     width: 40px;
-    /* Adjust width and height as needed */
     height: 40px;
     border-radius: 50%;
-    /* Make it round */
     object-fit: cover;
-    /* Ensure the image covers the entire space */
     margin-right: 10px;
 }
 
@@ -69,6 +78,7 @@
 
 .input-container {
     display: flex;
+    margin-left: 40%;
     align-items: center;
 }
 
@@ -92,46 +102,14 @@
     background-color: #0056b3;
 }
 
-/* Apply styles for messages sent by the current user */
 .my-message {
     align-self: flex-end;
-    /* Align messages to the right */
     justify-content: flex-end;
-    /* Content within messages to the right */
 }
 
-/* Apply styles for messages sent by other users */
 .other-message {
     align-self: flex-start;
-    /* Align messages to the left */
     justify-content: flex-start;
-    /* Content within messages to the left */
-}
-
-.message-container {
-    margin-bottom: 20px;
-}
-
-.message-content {
-    border: 1px solid #ccc;
-    padding: 10px;
-    position: relative;
-    /* Ensure position context for absolute positioning of menu */
-}
-
-.menu-trigger {
-    background: none;
-    border: none;
-    cursor: pointer;
-}
-
-.message-container {
-    margin-bottom: 20px;
-}
-
-.message-content {
-    border: 1px solid #ccc;
-    padding: 10px;
 }
 
 .message-actions {
@@ -152,99 +130,237 @@
     justify-content: center;
     align-items: center;
     height: 12px;
-    /* Adjust height as needed */
     width: 12px;
-    /* Adjust width as needed */
     min-width: auto;
-    /* Adjust minimum width as needed */
     padding: 4px;
-    /* Adjust padding as needed */
+}
+
+
+.typing-indicator {
+    display: flex;
+    justify-content: center;
+        align-items: center;
+        background-color: #f1f1f1;
+        border-radius: 8px;
+        padding: 10px 20px;
+        margin-top: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        animation: slideIn 0.3s ease-in-out;
+}
+
+.typing-indicator p {
+    font-size: 14px;
+    font-weight: bold;
+    color: #555;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    }
+    
+    .typing-indicator p::after {
+        content: '...';
+        display: inline-block;
+        animation: dots 1.5s steps(5, end) infinite;
+    }
+    
+    @keyframes slideIn {
+        from {
+            transform: translateY(10px);
+            opacity: 0;
+        }
+    
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes dots {
+    
+        0%,
+        20% {
+            color: rgba(0, 0, 0, 0);
+            text-shadow: .25em 0 0 rgba(0, 0, 0, 0), .5em 0 0 rgba(0, 0, 0, 0);
+        }
+    
+        40% {
+            color: #555;
+            text-shadow: .25em 0 0 rgba(0, 0, 0, 0), .5em 0 0 rgba(0, 0, 0, 0);
+        }
+    
+        60% {
+            text-shadow: .25em 0 0 #555, .5em 0 0 rgba(0, 0, 0, 0);
+        }
+    
+        80%,
+        100% {
+            text-shadow: .25em 0 0 #555, .5em 0 0 #555;
+        }
+    }
+    
+    .chat-hist {
+        margin-left: 40%;
+        margin-top: 10px;
+        margin-bottom: 10px;
+    
+        padding: 10px 20px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        font-weight: 600;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        display: inline-block;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .chat-hist:hover {
+        background-color: #218838;
+        transform: scale(1.05);
+    }
+    
+    .chat-hist:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.5);
+    }
+    
+    .chat-hist:active {
+        background-color: #1e7e34;
+        transform: scale(0.95);
+}
+
+.chat-hist:disabled {
+    background-color: #c0c0c0;
+    color: #666666;
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+.emoji-button {
+    font-size: 16px;
+    /* Adjust font size as needed */
+    margin-right: 10px;
+    /* Space between buttons */
+    padding: 8px 16px;
+    /* Padding inside the button */
+    border-radius: 4px;
+    /* Rounded corners */
+    background-color: #007bff;
+    /* Button background color */
+    color: white;
+    /* Text color */
+        border: none;
+        /* Remove default button border */
+        cursor: pointer;
+        /* Pointer cursor on hover */
+        transition: background-color 0.3s ease;
+        /* Smooth transition for background color */
+}
+
+.emoji-button:hover {
+    background-color: #0056b3;
+    /* Darker shade on hover */
+    }
+    
+    .custom-menu-button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 36px;
+        /* Adjust height as needed */
+        width: 36px;
+        /* Adjust width as needed */
+        min-width: auto;
+        padding: 8px;
+        /* Adjust padding as needed */
+        background-color: transparent;
+        /* Transparent background */
+        border: none;
+        /* Remove default button border */
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        /* Add transitions */
+}
+
+.custom-menu-button:hover {
+    background-color: #f0f0f0;
+    /* Light background color on hover */
+    border-radius: 50%;
+    /* Rounded shape on hover */
+}
+
+.custom-menu-button:focus {
+    outline: none;
+    /* Remove outline on focus */
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5);
+    /* Custom focus shadow */
 }
 
 .custom-icon {
-    font-size: 12px;
-    height: 4px;
-    /* Adjust font size of the icon */
-}
-
-
-.message-actions-emojis {
-    display: flex;
-    flex-direction: row;
-}
-
-.message-content .edit-mode {
-    flex-direction: column;
-    display: flex;
-    /* Use flexbox for layout */
-    align-items: center;
-    /* Align items vertically */
-}
-
-.message-content input[type="text"] {
-    flex: 1;
-    /* Take up remaining space */
-    padding: 8px;
-    /* Adjust padding */
-    margin-right: 8px;
-    /* Provide margin between input and buttons */
-    border: 1px solid #ccc;
-    /* Optional: Add border for input */
-    border-radius: 4px;
-    /* Optional: Add border radius */
-}
-
-.message-content button.mat-icon-button {
-    width: 36px;
-    /* Set fixed width for buttons */
-    height: 36px;
-    /* Set fixed height for buttons */
-    min-width: auto;
-    /* Allow buttons to shrink as needed */
-    margin-right: 4px;
-    /* Adjust margin between buttons */
-    background-color: #007bff;
-    /* Set background color */
-    color: white;
-    /* Set text color */
-}
-
-.message-content button.mat-icon-button:hover {
-    background-color: #0056b3;
-    /* Darker background color on hover */
-}
-
-.message-content button.mat-icon-button .mat-icon {
-    font-size: 18px;
-    /* Optional: Adjust icon size */
-}
-
-
-.media-button-file {
-    width: 2px;
-    height: 10px;
-    display: flex;
+    font-size: 24px;
+    /* Adjust icon size as needed */
+    color: #555;
+    /* Icon color */
 }
 
 .btn-pg-2-stepper {
-    /* background-color: violet; */
-    color: palevioletred;
-    margin: 10px 10px;
+    margin-top: 5px;
+        margin-left: 10px;
+        margin-right: 10px;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        font-weight: bold;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        display: inline-block;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .btn-pg-2 {
-    margin-top: 10px;
+    margin-top: 5px;
+        margin-left: 10px;
+        margin-right: 10px;
+        padding: 10px 20px;
+        background-color: greenyellow;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        font-weight: bold;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        display: inline-block;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn-pg-2-stepper:hover {
+        background-color: #0056b3;
+        transform: scale(1.05);
 }
 
-
-.chat-hist {
-    background-color: #00ff37;
-    color: white;
-    font-size: large;
-    font-weight: 400;
-    border: none;
+.btn-pg-2-stepper:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5);
 }
 
-/* .stepper-holder {
-    margin-left: 100px;
-} */
+.btn-pg-2-stepper:active {
+    background-color: #004499;
+    transform: scale(0.95);
+}
+
+.btn-pg-2-stepper:disabled {
+    background-color: #c0c0c0;
+    color: #666666;
+    cursor: not-allowed;
+    opacity: 0.65;
+}

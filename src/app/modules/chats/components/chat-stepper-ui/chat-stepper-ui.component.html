@@ -29,7 +29,7 @@
     <div class="step-container">
 
         <mat-step>
-            <div class="stepper-holder">
+            <mat-card class="stepper-holder">
                 <ng-template matStepLabel>Chat Messages</ng-template>
                 <!-- {{messages | json}} -->
 
@@ -87,7 +87,7 @@
 
                             <!-- Edit and Delete Buttons (shown only for user's own messages) -->
                             <div *ngIf="msg.username === username &&!msg?.showEmojis " class=" edit-delete-buttons">
-                                <button mat-icon-button [matMenuTriggerFor]="messageMenu">
+                                <button class="custom-menu-button" mat-icon-button [matMenuTriggerFor]="messageMenu">
                                     <mat-icon class="custom-icon">more_vert</mat-icon>
                                 </button>
                                 <mat-menu #messageMenu="matMenu" [overlapTrigger]="false">
@@ -114,13 +114,13 @@
                     <button>😂 {{ msg.emojis.find(e => e.type === 'laugh')?.count || 0}}</button> -->
 
                                 <div class="message-actions-emojis">
-                                    <button (click)="likeMessage(msg)">
+                                    <button (click)="likeMessage(msg)" class="emoji-button">
                                         👍 {{ getEmojiCount(msg, 'like') }}
                                     </button>
-                                    <button (click)="loveMessage(msg)">
+                                    <button (click)="loveMessage(msg)" class="emoji-button">
                                         ❤️ {{ getEmojiCount(msg, 'love') }}
                                     </button>
-                                    <button (click)="laughMessage(msg)">
+                                    <button (click)="laughMessage(msg)" class="emoji-button">
                                         😂 {{ getEmojiCount(msg, 'laugh') }}
                                     </button>
                                 </div>
@@ -173,7 +173,7 @@
                     <button (click)="sendMessage()">Send</button>
                 </div>
 
-            </div>
+            </mat-card>
 
         </mat-step>
 
