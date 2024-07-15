@@ -120,7 +120,7 @@ export class ChatUiComponent implements OnInit {
       const formData = new FormData();
       formData.append('file', this.selectedFile);
 
-      this.http.post<{ dpUrl: string }>('https://common-chat-room-server-1.onrender.com//upload-dp', formData).subscribe(response => {
+      this.http.post<{ dpUrl: string }>('https://common-chat-room-server-1.onrender.com/upload-dp', formData).subscribe(response => {
         this.dpUrl = response.dpUrl;
       });
     }
