@@ -1,0 +1,250 @@
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 600px;
+    /* Adjust as per your layout */
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.dp-upload-container {
+    margin-bottom: 10px;
+}
+
+.user-container {
+    margin-bottom: 10px;
+}
+
+.message-container {
+    display: flex;
+    justify-content: flex-start;
+    /* Messages are left-aligned by default */
+    margin-bottom: 10px;
+}
+
+.message-content {
+    display: flex;
+    flex-direction: column;
+    max-width: 80%;
+    /* Adjust as per your layout */
+}
+
+/* .user-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+} */
+
+.user-dp {
+    width: 40px;
+    /* Adjust width and height as needed */
+    height: 40px;
+    border-radius: 50%;
+    /* Make it round */
+    object-fit: cover;
+    /* Ensure the image covers the entire space */
+    margin-right: 10px;
+}
+
+.username {
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.message {
+    background-color: #e6f2ff;
+    padding: 8px;
+    border-radius: 8px;
+    margin-bottom: 5px;
+}
+
+.timestamp {
+    font-size: 0.8rem;
+    color: #999;
+}
+
+.input-container {
+    display: flex;
+    align-items: center;
+}
+
+.input-container input[type="text"],
+.input-container button {
+    margin-right: 10px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.input-container button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.input-container button:hover {
+    background-color: #0056b3;
+}
+
+/* Apply styles for messages sent by the current user */
+.my-message {
+    align-self: flex-end;
+    /* Align messages to the right */
+    justify-content: flex-end;
+    /* Content within messages to the right */
+}
+
+/* Apply styles for messages sent by other users */
+.other-message {
+    align-self: flex-start;
+    /* Align messages to the left */
+    justify-content: flex-start;
+    /* Content within messages to the left */
+}
+
+.message-container {
+    margin-bottom: 20px;
+}
+
+.message-content {
+    border: 1px solid #ccc;
+    padding: 10px;
+    position: relative;
+    /* Ensure position context for absolute positioning of menu */
+}
+
+.menu-trigger {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.message-container {
+    margin-bottom: 20px;
+}
+
+.message-content {
+    border: 1px solid #ccc;
+    padding: 10px;
+}
+
+.message-actions {
+    position: relative;
+}
+
+.context-menu {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+.custom-menu-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 12px;
+    /* Adjust height as needed */
+    width: 12px;
+    /* Adjust width as needed */
+    min-width: auto;
+    /* Adjust minimum width as needed */
+    padding: 4px;
+    /* Adjust padding as needed */
+}
+
+.custom-icon {
+    font-size: 12px;
+    height: 4px;
+    /* Adjust font size of the icon */
+}
+
+
+.message-actions-emojis {
+    display: flex;
+    flex-direction: row;
+}
+
+.message-content .edit-mode {
+    flex-direction: column;
+    display: flex;
+    /* Use flexbox for layout */
+    align-items: center;
+    /* Align items vertically */
+}
+
+.message-content input[type="text"] {
+    flex: 1;
+    /* Take up remaining space */
+    padding: 8px;
+    /* Adjust padding */
+    margin-right: 8px;
+    /* Provide margin between input and buttons */
+    border: 1px solid #ccc;
+    /* Optional: Add border for input */
+    border-radius: 4px;
+    /* Optional: Add border radius */
+}
+
+.message-content button.mat-icon-button {
+    width: 36px;
+    /* Set fixed width for buttons */
+    height: 36px;
+    /* Set fixed height for buttons */
+    min-width: auto;
+    /* Allow buttons to shrink as needed */
+    margin-right: 4px;
+    /* Adjust margin between buttons */
+    background-color: #007bff;
+    /* Set background color */
+    color: white;
+    /* Set text color */
+}
+
+.message-content button.mat-icon-button:hover {
+    background-color: #0056b3;
+    /* Darker background color on hover */
+}
+
+.message-content button.mat-icon-button .mat-icon {
+    font-size: 18px;
+    /* Optional: Adjust icon size */
+}
+
+
+.media-button-file {
+    width: 2px;
+    height: 10px;
+    display: flex;
+}
+
+.btn-pg-2-stepper {
+    /* background-color: violet; */
+    color: palevioletred;
+    margin: 10px 10px;
+}
+
+.btn-pg-2 {
+    margin-top: 10px;
+}
+
+
+.chat-hist {
+    background-color: #00ff37;
+    color: white;
+    font-size: large;
+    font-weight: 400;
+    border: none;
+}
+
+/* .stepper-holder {
+    margin-left: 100px;
+} */

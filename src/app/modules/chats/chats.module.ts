@@ -9,6 +9,8 @@ import { DateFormatPipe } from './pipes/dates/dates.pipe';
 import { MaterialModule } from '../material/material.module';
 import { MatMenuModule } from '@angular/material/menu';
 import { FileUploadDialogComponent } from './components/file-upload-dialog/file-upload-dialog.component';
+import { ChatStepperUiComponent } from './components/chat-stepper-ui/chat-stepper-ui.component';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 
 @NgModule({
@@ -17,10 +19,11 @@ import { FileUploadDialogComponent } from './components/file-upload-dialog/file-
     ChatRromComponent,
     ChatUiComponent,
     DateFormatPipe,
-    FileUploadDialogComponent
+    FileUploadDialogComponent,
+    ChatStepperUiComponent
   ],
   imports: [
-    CommonModule, MaterialModule, MatMenuModule,
+    CommonModule, MaterialModule, MatMenuModule, MatSnackBarModule,
     ChatsRoutingModule, FormsModule // Add FormsModule to imports array
 
   ]

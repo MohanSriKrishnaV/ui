@@ -1,27 +1,21 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { MatMenuTrigger } from '@angular/material/menu';
 import { Socket, io } from 'socket.io-client';
 import { ChatsService } from '../../services/chats.service';
-import { Observable, Subject, Subscription, debounceTime, distinctUntilChanged, filter, fromEvent, of, switchMap, takeUntil } from 'rxjs';
-import { MatDialog } from '@angular/material/dialog';
-
-import { MatMenuTrigger } from '@angular/material/menu';
 import { FileUploadDialogComponent } from '../file-upload-dialog/file-upload-dialog.component';
-
-export interface Message {
-  message: string;
-  timestamp: string;
-  username: string;
-  dpUrl?: string;
-  showReactionMenu: boolean; // Ensure this is included if it's part of your message handling
-}
+import { Observable, Subscription, debounceTime, fromEvent } from 'rxjs';
+import { Message } from '../chat-ui/chat-ui.component';
+import { MatStepper } from '@angular/material/stepper';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
-  selector: 'app-chat-ui',
-  templateUrl: './chat-ui.component.html',
-  styleUrls: ['./chat-ui.component.css']
+  selector: 'app-chat-stepper-ui',
+  templateUrl: './chat-stepper-ui.component.html',
+  styleUrls: ['./chat-stepper-ui.component.css']
 })
-export class ChatUiComponent implements OnInit {
+export class ChatStepperUiComponent implements OnInit {
   private socket: Socket;
   messages: any[] = [];
   message: any = '';
@@ -35,15 +29,23 @@ export class ChatUiComponent implements OnInit {
   @ViewChild('messageInput', { static: true }) messageInput: ElementRef;
 
 
-  constructor(private dialog: MatDialog, private http: HttpClient, private chatsService: ChatsService) {
+  constructor(private _snackBar: MatSnackBar, private dialog: MatDialog, private http: HttpClient, private chatsService: ChatsService) {
     this.socket = io('https://common-chat-room-server-1.onrender.com/'); // Replace with your WebSocket server URL
   }
 
 
   typingUsers: string[] = [];
 
-
+  // Method to show a snackbar with custom position
+  showTopSnackBar(message: string, action: string) {
+    this._snackBar.open(message, action, {
+      duration: 2000, // Snackbar duration in milliseconds
+      verticalPosition: 'top', // Position the snackbar at the top
+    });
+  }
   ngOnInit(): void {
+    this.showTopSnackBar('Kindly enter your name before entering the chat room', 'Close');
+
     this.socket.on('message', (messageContent: any) => {
       const newMessage: any = {
         dpUrl: messageContent.dpUrl,
@@ -122,6 +124,7 @@ export class ChatUiComponent implements OnInit {
 
       this.http.post<{ dpUrl: string }>('https://common-chat-room-server-1.onrender.com//upload-dp', formData).subscribe(response => {
         this.dpUrl = response.dpUrl;
+        this.openSnackBar('Display picture uploaded successfully.', 'Close');
       });
     }
   }
@@ -362,5 +365,26 @@ export class ChatUiComponent implements OnInit {
   getAllMessages() {
     this.chatsService.getAllMsgs();
 
+  }
+  @ViewChild('stepper') stepper: MatStepper;
+
+  // validateUsername() {
+  //   if (!this.username || this.username.trim().length === 0) {
+  //     this.openSnackBar('Please enter your name.', 'Close');
+  //     // Disable stepper advancement
+  //     this.stepper._steps.forEach(step => step.completed = false);
+  //   } else {
+  //     // Enable stepper advancement
+  //     this.stepper._steps.forEach(step => step.completed = true);
+  //     // Proceed to the next step programmatically
+  //     this.stepper.next();
+  //   }
+  // }
+
+  openSnackBar(message: string, action: string) {
+    return this._snackBar.open(message, action, {
+      duration: 3000, // Duration in milliseconds
+      verticalPosition: 'bottom' // Positioning the snackbar
+    });
   }
 }
