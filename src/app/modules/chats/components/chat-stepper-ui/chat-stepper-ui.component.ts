@@ -186,7 +186,7 @@ export class ChatStepperUiComponent implements OnInit {
     const formData: FormData = new FormData();
     formData.append('file', file, file.name);
 
-    const uploadUrl = 'https://common-chat-room-server-1.onrender.com//upload/Media';
+    const uploadUrl = 'https://common-chat-room-server-1.onrender.com/upload/Media';
 
     return this.http.post<string>(uploadUrl, formData, {
       headers: new HttpHeaders({
@@ -354,10 +354,10 @@ export class ChatStepperUiComponent implements OnInit {
       // Replace double backslashes with single backslashes if necessary
       mediaUrl = mediaUrl.replace(/\\/g, '/'); // Replace '\\' with '/'
       // Assuming mediaUrl is relative, concatenate it with the base URL
-      return 'https://common-chat-room-server-1.onrender.com//' + mediaUrl;
+      return 'https://common-chat-room-server-1.onrender.com/' + mediaUrl;
     } else {
       // Return a placeholder or handle the null case as per your application's requirement
-      return 'https://common-chat-room-server-1.onrender.com//default-placeholder.jpg';
+      return 'https://common-chat-room-server-1.onrender.com/default-placeholder.jpg';
     }
   }
 
