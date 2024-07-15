@@ -42,7 +42,7 @@
 
                         <div class="message-content">
                             <div class="user-info">
-                                <img *ngIf="msg.dpUrl; else placeholder" [src]="'https://common-chat-room-server-1.onrender.com/' + msg.dpUrl"
+                                <img *ngIf="msg.dpUrl; else placeholder" [src]="'https://common-chat-room-server-1.onrender.com' + msg.dpUrl"
                                     alt="User DP" class="user-dp">
 
                                 <ng-template #placeholder>
