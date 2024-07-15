@@ -1,0 +1,159 @@
+<div class="chat-container">
+    <!-- {{messages | json}} -->
+
+    <div class="user-info">
+        <div>
+            <h4>User Info</h4>
+        </div>
+        <div class="dp-upload-container">
+            <input type="file" (change)="onFileSelected($event)">
+            <button (click)="uploadDp()">Upload Display Picture</button>
+        </div>
+
+        <div class="user-container">
+            <input type="text" [(ngModel)]="username" placeholder="Enter your name...">
+        </div>
+    </div>
+
+
+
+    <!-- {{messages | json}} -->
+
+    <div>
+
+        <button *ngIf="messages?.length==0" (click)="getAllMessages()">Show Previous Chat History</button>
+        <div *ngFor="let msg of messages;let i = index; trackBy: trackByMessageId" class="message-container"
+            [ngClass]="{'my-message': msg.username === username, 'other-message': msg.username !== username}">
+
+            <div class="message-content">
+                <div class="user-info">
+                    <img *ngIf="msg.dpUrl; else placeholder" [src]="'http://localhost:3000' + msg.dpUrl" alt="User DP"
+                        class="user-dp">
+
+                    <ng-template #placeholder>
+                        <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5OjcBCgoKDQwNGg8PGjclHyU3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N//AABEIAJQArwMBIgACEQEDEQH/xAAaAAEAAwEBAQAAAAAAAAAAAAAAAgQFAQMH/8QALhABAQACAQIFAgILAAAAAAAAAAECAxEEIRIxQVFhcYEFIhMyM0JDUmJyobHB/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAH/xAAWEQEBAQAAAAAAAAAAAAAAAAAAARH/2gAMAwEAAhEDEQA/APqgCoAAAAAAAAAAAAAAAAAAAAAAAAAAAAA5cpjOcrJPkHRXy6zTLxPFl9IY9bpt4vM+sBYEMd2vL9XZjfumAAAAAAAAAAAAAAACp127LGTXj2uXegdT1cwtw18W+t9FLZsz2XnPK2ogABgPfR1WeqyZfmw9vZ4Bg2ccplJce893VHoNtmV1XyveLwAAAAAAAAAAAAOsfqM/0m7LL54n0aud4xyvtLWOAAoAAAAnpy8O3C/1RrsbC8Z432sbPrygAAAAAAAAAAAAhuvGrZz/AC1kNLrdl14dv3uzNWAAAAAABPNsxjTtWr0uzLbqmWXn5IPUAAAAAAAAAAAFX8RluqWelZ7W34XZpzxnnZ2+rKyxywvGcsvssHAAAAAAGn0Us6fHn15rOw157LxhLf8AjXxnhxxx9uyDoAAAAAAAAAAACn+Ia+ZjnPTtauObMZnhljl5WAxhLbrurO4ZecRWAAAD06fVd2zw+k70F3odfg1XK9rl/pZJJJxJxPYQAAAAAAAAAAAAB1W6jqcdV8HFuXt6QFbr/wBtP7YrJ7duW3O5Z+dQWAAAufh3ns+ym9NO7PVlbjxZZxZUGsPHp+ox3TiSzKd7K9wcAAAAAAAAHMspjOcrJPmquzrsZ214+L5vkC2hnu165+fKT4Z2zqt2ycXLie0eIL23rp/Dx5+ap7M8tmXizvNRFgAAAAAAnq25arzhx91zV12HlsxuPzPJQEGxhswznOFl+iTFls7y8X4e+vq92E4uXintQaYq6utwy7bJcb/hZl5ks4svtQdAAdneyOAMrqdmWzZfFe0tkjyAABQAAAAAAAAAAAAWeizyx24YS/lyvFgFGiAg/9k="
+                            alt="Default Image" class="user-dp">
+                    </ng-template> <span class="username">{{ msg.username }}</span>
+                </div>
+                <!-- msg {{msg | json}} -->
+                <!-- <p class="message">{{ msg.message }}</p> -->
+
+
+
+                <ng-container *ngIf="!msg?.mediaType">
+                    <ng-container *ngIf="!msg.editing; else editMode">
+                        <p class="message">{{ msg.message }}</p>
+                    </ng-container> </ng-container>
+
+
+                <ng-container *ngIf="msg?.mediaType=='image'">
+                    <!-- {{msg | json}} -->
+                    <!-- image -->
+                    <img [src]="normalizeMediaUrl(msg?.mediaUrl)" alt="Media Image">
+                </ng-container>
+
+                <ng-container *ngIf="msg?.mediaType=='video'">
+                    <video width="320" height="240" controls>
+                        <source [src]="normalizeMediaUrl(msg?.mediaUrl)" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video> </ng-container>
+
+                <ng-template #editMode>
+                    <div class="edit-mode">
+                        <input type="text" [(ngModel)]="msg.editedMessage" (keydown.enter)="saveMessage(i)">
+                        <button mat-icon-button (click)="cancelEdit(i)">
+                            <mat-icon>cancel</mat-icon>
+                        </button>
+                        <button mat-icon-button (click)="saveMessage(i)">
+                            <mat-icon>done</mat-icon>
+                        </button>
+                    </div>
+                </ng-template>
+
+                <!-- Edit and Delete Buttons (shown only for user's own messages) -->
+                <div *ngIf="msg.username === username &&!msg?.showEmojis " class=" edit-delete-buttons">
+                    <button mat-icon-button [matMenuTriggerFor]="messageMenu">
+                        <mat-icon class="custom-icon">more_vert</mat-icon>
+                    </button>
+                    <mat-menu #messageMenu="matMenu" [overlapTrigger]="false">
+                        <button mat-menu-item (click)="toggleEditMode(msg)" *ngIf="!msg?.mediaType">
+                            <span>Edit</span>
+                        </button>
+                        <button mat-menu-item (click)="deleteMessage(msg)">
+                            <span>Delete</span>
+                        </button>
+                    </mat-menu>
+                </div>
+                <div class="timestamp">{{ msg.timestamp | date:'shortTime' }}</div>
+
+                <div class="message-actions" *ngIf="!msg?.showEmojis">
+                    <!-- <button (click)="likeMessage(msg)">👍 {{ msg.emojis.find(e => e.type === 'like')?.count || 0 }}</button>
+                <button (click)="loveMessage(msg)">❤️ {{ msg.emojis.find(e => e.type === 'love')?.count || 0 }}</button>
+                <button (click)="laughMessage(msg)">😂 {{ msg.emojis.find(e => e.type === 'laugh')?.count || 0
+                    }}</button> -->
+
+                    <!-- {{msg.emojis | json}}
+
+                <button>👍 {{ msg?.emojis?.find(e => e.type === 'like')?.count || 0 }}</button>
+                <button>❤️ {{ msg?.emojis?.find(e => e.type === 'love')?.count || 0 }}</button>
+                <button>😂 {{ msg.emojis.find(e => e.type === 'laugh')?.count || 0}}</button> -->
+
+                    <div class="message-actions-emojis">
+                        <button (click)="likeMessage(msg)">
+                            👍 {{ getEmojiCount(msg, 'like') }}
+                        </button>
+                        <button (click)="loveMessage(msg)">
+                            ❤️ {{ getEmojiCount(msg, 'love') }}
+                        </button>
+                        <button (click)="laughMessage(msg)">
+                            😂 {{ getEmojiCount(msg, 'laugh') }}
+                        </button>
+                    </div>
+
+                </div>
+
+
+
+                <!-- Message actions (context menu) -->
+                <!-- Message actions (context menu) -->
+                <!-- <div class="message-actions">
+                <button mat-icon-button [matMenuTriggerFor]="messageMenu" (contextmenu)="openContextMenu($event, msg)"
+                    class="custom-menu-button">
+                    <mat-icon class="custom-icon">more_vert</mat-icon>
+                </button>
+                <mat-menu #messageMenu="matMenu" [overlapTrigger]="false">
+                    <button mat-menu-item (click)="likeMessage(msg)">
+                        <span>👍</span> <!-- Thumbs up emoji -->
+                <!-- </button>
+            <button mat-menu-item (click)="loveMessage(msg)"> <span>❤️</span> <!-- Heart eyes emoji -->
+                <!-- </button>
+            <button mat-menu-item (click)="laughMessage(msg)">
+                <!-- <span>😊</span> <!-- Laughing face emoji -->
+                <!-- </button>
+            </mat-menu>
+        </div> -->
+
+
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <!-- typingUsers{{typingUsers | json}} -->
+    <div *ngIf="typingUsers.length > 0" class="typing-indicator">
+        <p>{{ typingUsers.join(', ') }} {{ typingUsers.length > 1 ? 'are' : 'is' }} typing...</p>
+    </div>
+
+
+
+    <div class="input-container">
+        <button mat-icon-button (click)="openFileUploadDialog()">
+            <mat-icon>attach_file</mat-icon>
+        </button>
+
+        <input #messageInput type="text" [(ngModel)]="message" (input)="onTyping()" placeholder="Type your message...">
+        <button (click)="sendMessage()">Send</button>
+    </div>
+</div>
