@@ -1,0 +1,150 @@
+<p>chats2 works!</p>
+<mat-horizontal-stepper #stepper>
+    <!-- Step 1: User Info -->
+    <mat-step>
+        <ng-template matStepLabel>User Info</ng-template>
+        <div class="user-info">
+            <div class="user-container">
+                <input type="text" [(ngModel)]="username" placeholder="Enter your name...">
+            </div>
+            <button mat-button matStepperNext>Next</button>
+        </div>
+    </mat-step>
+
+    <!-- Step 2: Display Picture Upload -->
+    <mat-step>
+        <ng-template matStepLabel>Upload Display Picture</ng-template>
+        <div class="dp-upload-container">
+            <input type="file" (change)="onFileSelected($event)">
+            <div style="display: flex; flex-direction: row;">
+                <button mat-button class="btn-pg-2" (click)="uploadDp()">Upload Display Picture</button>
+
+            </div>
+
+        </div>
+        <button mat-button class="btn-pg-2-stepper" matStepperPrevious>Back</button>
+        <button mat-button class="btn-pg-2-stepper" matStepperNext>Next</button>
+    </mat-step>
+
+    <!-- Step 3: Chat Messages -->
+    <div class="step-container">
+
+        <mat-step>
+            <div class="stepper-holder">
+                <ng-template matStepLabel>Chat Messages</ng-template>
+                <!-- {{messages | json}} -->
+
+                <div>
+
+                    <button class="chat-hist" *ngIf="messages?.length==0" (click)="getAllMessages()">Show Previous Chat
+                        History</button>
+                    <div *ngFor="let msg of messages;let i = index; trackBy: trackByMessageId" class="message-container"
+                        [ngClass]="{'my-message': msg.username === username, 'other-message': msg.username !== username}">
+
+                        <mat-card class="message-content">
+                            <div class="user-info">
+                                <img *ngIf="msg.dpUrl; else placeholder"
+                                    [src]="'https://common-chat-room-server-1.onrender.com' + msg.dpUrl" alt="User DP"
+                                    class="user-dp">
+                                <ng-template #placeholder>
+                                    <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5OjcBCgoKDQwNGg8PGjclHyU3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N//AABEIAJQArwMBIgACEQEDEQH/xAAaAAEAAwEBAQAAAAAAAAAAAAAAAgQFAQMH/8QALhABAQACAQIFAgILAAAAAAAAAAECAxEEIRIxQVFhcYEFIhMyM0JDUmJyobHB/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAH/xAAWEQEBAQAAAAAAAAAAAAAAAAAAARH/2gAMAwEAAhEDEQA/APqgCoAAAAAAAAAAAAAAAAAAAAAAAAAAAAA5cpjOcrJPkHRXy6zTLxPFl9IY9bpt4vM+sBYEMd2vL9XZjfumAAAAAAAAAAAAAAACp127LGTXj2uXegdT1cwtw18W+t9FLZsz2XnPK2ogABgPfR1WeqyZfmw9vZ4Bg2ccplJce893VHoNtmV1XyveLwAAAAAAAAAAAAOsfqM/0m7LL54n0aud4xyvtLWOAAoAAAAnpy8O3C/1RrsbC8Z432sbPrygAAAAAAAAAAAAhuvGrZz/AC1kNLrdl14dv3uzNWAAAAAABPNsxjTtWr0uzLbqmWXn5IPUAAAAAAAAAAAFX8RluqWelZ7W34XZpzxnnZ2+rKyxywvGcsvssHAAAAAAGn0Us6fHn15rOw157LxhLf8AjXxnhxxx9uyDoAAAAAAAAAAACn+Ia+ZjnPTtauObMZnhljl5WAxhLbrurO4ZecRWAAAD06fVd2zw+k70F3odfg1XK9rl/pZJJJxJxPYQAAAAAAAAAAAAB1W6jqcdV8HFuXt6QFbr/wBtP7YrJ7duW3O5Z+dQWAAAufh3ns+ym9NO7PVlbjxZZxZUGsPHp+ox3TiSzKd7K9wcAAAAAAAAHMspjOcrJPmquzrsZ214+L5vkC2hnu165+fKT4Z2zqt2ycXLie0eIL23rp/Dx5+ap7M8tmXizvNRFgAAAAAAnq25arzhx91zV12HlsxuPzPJQEGxhswznOFl+iTFls7y8X4e+vq92E4uXintQaYq6utwy7bJcb/hZl5ks4svtQdAAdneyOAMrqdmWzZfFe0tkjyAABQAAAAAAAAAAAAWeizyx24YS/lyvFgFGiAg/9k="
+                                        alt="Default Image" class="user-dp">
+                                </ng-template>
+                                <span class="username">{{ msg.username }}</span>
+                            </div>
+
+                            <div *ngIf="!msg?.mediaType">
+                                <ng-container *ngIf="!msg.editing; else editMode">
+                                    <p class="message">{{ msg.message }}</p>
+                                </ng-container>
+                            </div>
+
+                            <div *ngIf="msg?.mediaType == 'image'">
+                                <img [src]="normalizeMediaUrl(msg?.mediaUrl)" alt="Media Image" class="media-image">
+                            </div>
+
+                            <div *ngIf="msg?.mediaType == 'video'">
+                                <video width="320" height="240" controls class="media-video">
+                                    <source [src]="normalizeMediaUrl(msg?.mediaUrl)" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video>
+                            </div>
+
+                            <ng-template #editMode>
+                                <div class="edit-mode">
+                                    <mat-form-field appearance="outline" class="edit-input">
+                                        <mat-label>Edit Message</mat-label>
+                                        <input matInput [(ngModel)]="msg.editedMessage"
+                                            (keydown.enter)="saveMessage(i)">
+                                    </mat-form-field>
+                                    <button mat-icon-button (click)="cancelEdit(i)">
+                                        <mat-icon>cancel</mat-icon>
+                                    </button>
+                                    <button mat-icon-button (click)="saveMessage(i)">
+                                        <mat-icon>done</mat-icon>
+                                    </button>
+                                </div>
+                            </ng-template>
+
+                            <div *ngIf="msg.username === username && !msg?.showEmojis" class="edit-delete-buttons">
+                                <button mat-icon-button [matMenuTriggerFor]="messageMenu">
+                                    <mat-icon class="custom-icon">more_vert</mat-icon>
+                                </button>
+                                <mat-menu #messageMenu="matMenu" [overlapTrigger]="false">
+                                    <button mat-menu-item (click)="toggleEditMode(msg)" *ngIf="!msg?.mediaType">
+                                        <mat-icon>edit</mat-icon>
+                                        <span>Edit</span>
+                                    </button>
+                                    <button mat-menu-item (click)="deleteMessage(msg)">
+                                        <mat-icon>delete</mat-icon>
+                                        <span>Delete</span>
+                                    </button>
+                                </mat-menu>
+                            </div>
+                            <div class="timestamp">{{ msg.timestamp | date: 'shortTime' }}</div>
+
+                            <div class="message-actions" *ngIf="!msg?.showEmojis">
+                                <div class="message-actions-emojis">
+                                    <button mat-button (click)="likeMessage(msg)">
+                                        👍 {{ getEmojiCount(msg, 'like') }}
+                                    </button>
+                                    <button mat-button (click)="loveMessage(msg)">
+                                        ❤️ {{ getEmojiCount(msg, 'love') }}
+                                    </button>
+                                    <button mat-button (click)="laughMessage(msg)">
+                                        😂 {{ getEmojiCount(msg, 'laugh') }}
+                                    </button>
+                                </div>
+                            </div>
+                        </mat-card>
+
+                    </div>
+                </div>
+
+
+
+
+                <!-- typingUsers{{typingUsers | json}} -->
+                <div *ngIf="typingUsers.length > 0" class="typing-indicator">
+                    <p>{{ typingUsers.join(', ') }} {{ typingUsers.length > 1 ? 'are' : 'is' }} typing...</p>
+                </div>
+
+
+
+                <div class="input-container">
+                    <button mat-icon-button (click)="openFileUploadDialog()">
+                        <mat-icon>attach_file</mat-icon>
+                    </button>
+
+                    <input #messageInput type="text" [(ngModel)]="message" (input)="onTyping()"
+                        placeholder="Type your message...">
+                    <button (click)="sendMessage()">Send</button>
+                </div>
+
+            </div>
+
+        </mat-step>
+
+    </div>
+
+</mat-horizontal-stepper>
