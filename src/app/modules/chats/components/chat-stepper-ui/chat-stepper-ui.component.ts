@@ -5,10 +5,12 @@ import { MatMenuTrigger } from '@angular/material/menu';
 import { Socket, io } from 'socket.io-client';
 import { ChatsService } from '../../services/chats.service';
 import { FileUploadDialogComponent } from '../file-upload-dialog/file-upload-dialog.component';
-import { Observable, Subscription, debounceTime, fromEvent } from 'rxjs';
+import { Observable, Subject, Subscription, catchError, debounceTime, fromEvent, throwError } from 'rxjs';
 import { Message } from '../chat-ui/chat-ui.component';
 import { MatStepper } from '@angular/material/stepper';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-chat-stepper-ui',
@@ -21,32 +23,66 @@ export class ChatStepperUiComponent implements OnInit {
   message: any = '';
   username = '';
   @ViewChild(MatMenuTrigger) menu: MatMenuTrigger;
-
-
-  /// is typing 
-
-
   @ViewChild('messageInput', { static: true }) messageInput: ElementRef;
 
+  constructor(private router: Router, private fb: FormBuilder, private _snackBar: MatSnackBar, private dialog: MatDialog, private http: HttpClient, private chatsService: ChatsService) {
 
-  constructor(private _snackBar: MatSnackBar, private dialog: MatDialog, private http: HttpClient, private chatsService: ChatsService) {
-    this.socket = io('https://common-chat-room-server-1.onrender.com/'); // Replace with your WebSocket server URL
   }
-
 
   typingUsers: string[] = [];
-
-  // Method to show a snackbar with custom position
-  showTopSnackBar(message: string, action: string) {
-    this._snackBar.open(message, action, {
-      duration: 2000, // Snackbar duration in milliseconds
-      verticalPosition: 'top', // Position the snackbar at the top
-    });
-  }
+  loader: boolean = true
+  showPrevChat: boolean = true
+  navExtras!: any
   ngOnInit(): void {
-    this.showTopSnackBar('Kindly enter your name before entering the chat room', 'Close');
+    this.navExtras = history.state;
+    debugger
+    if (this.navExtras?.roomId !== null || this.navExtras?.roomId !== undefined) {
+      let localData = sessionStorage.getItem("roomId")
+      if (localData) {
+        this.navExtras["roomId"] = localData
+        this.makeConnections()
+      }
+      else {
+        this.router.navigate(['/chat/id']);
+      }
+    }
+  }
 
+
+
+  ngOnDestroy(): void {
+    this.typingSubscription?.unsubscribe();
+    this.socket?.disconnect(); // Disconnect socket when component is destroyed
+  }
+
+
+  makeConnections() {
+
+    if (this.navExtras?.roomId) {
+      this.socket = io('http://localhost:3000', {
+        query: {
+          roomId: this.navExtras?.roomId
+        }
+      }); // Replace with your WebSocket server URL
+      // this.chatsService.joinRoom(this.navExtras?.roomId); // Join the specified room when component initializes
+      this.socket.on('connect', () => {
+        console.log('Connected to WebSocket server');
+        this.loader = false
+        this.showTopSnackBar('Succesfully joined the chat room', 'Close');
+        this.chatsService.joinRoom(this.navExtras.roomId, this.socket);
+      });
+
+      this.socket.on('typing', (response: any) => {
+        console.log(response, "response typgn");
+        this.typingSubject.next(response); // Update typingSubject with new usernames
+      });
+    }
+    // console.log(history.state, "nav extras");
+
+    this.showTopSnackBar('Kindly enter your name before entering the chat room', 'Close');
     this.socket.on('message', (messageContent: any) => {
+      console.log(messageContent, "messageContent");
+
       const newMessage: any = {
         dpUrl: messageContent.dpUrl,
         id: messageContent.id,
@@ -55,13 +91,14 @@ export class ChatStepperUiComponent implements OnInit {
         username: messageContent.username, // Assuming messageContent has a username field
         showReactionMenu: false, // Initialize showReactionMenu to false for new messages
         mediaType: messageContent?.mediaType,
-        mediaUrl: messageContent?.mediaUrl
+        mediaUrl: messageContent?.mediaUrl,
+        // roomId: this.navExtras.roomId // Include room ID
       };
       this.messages.push(newMessage); // Add incoming message to the messages array
     });
 
-    this.chatsService.typing$.subscribe((usernames: any) => {
-
+    this.typing$.subscribe((usernames: any) => {
+      console.log(usernames, "usernames typing");
       this.typingUsers = usernames.filter((name: string) => name !== this.username);
       // console.log(this.typingUsers, "typingUsers");
     });
@@ -75,6 +112,11 @@ export class ChatStepperUiComponent implements OnInit {
     });
 
 
+    this.socket.on('roomJoined', (messageContent: any) => {
+      console.log(messageContent, "messageContent roomJoined");
+    });
+
+
     this.socket.on('messageDeleted', (messageContent: any) => {
       this.findAndDeleteMsg(messageContent)
       // this.
@@ -85,17 +127,15 @@ export class ChatStepperUiComponent implements OnInit {
     });
 
     this.socket.on('gettingAllMsgs', (messageContent: any) => {
-      console.log(messageContent, "messageContent");
-      this.messages.unshift(...messageContent); // Assuming messageContent is an array of messages
+      if (messageContent?.length === 0) {
+        this.openSnackBar('no Previous Chat history found', 'Close');
+      }
+      else {
+        console.log(messageContent, "messageContent");
+        this.messages.unshift(...messageContent); // Assuming messageContent is an array of messages
+      }
     });
-  }
 
-
-
-  ngOnDestroy(): void {
-
-    this.typingSubscription.unsubscribe();
-    this.socket.disconnect(); // Disconnect socket when component is destroyed
   }
 
   sendMessage(): void {
@@ -107,10 +147,11 @@ export class ChatStepperUiComponent implements OnInit {
         message: trimmedMessage,
         timestamp,
         username: trimmedUsername,
-        dpUrl: this.dpUrl
+        dpUrl: this.dpUrl,
+        roomId: this.navExtras?.roomId
       };
       this.socket.emit('message', messageWithMetadata); // Send message with metadata to WebSocket server
-      this.chatsService.sendStopTypingEvent(this.username);
+      this.chatsService.sendStopTypingEvent(this.username, this.navExtras?.roomId, this.socket);
       this.message = ''; // Clear message input
     }
   }
@@ -122,7 +163,7 @@ export class ChatStepperUiComponent implements OnInit {
       const formData = new FormData();
       formData.append('file', this.selectedFile);
 
-      this.http.post<{ dpUrl: string }>('https://common-chat-room-server-1.onrender.com/upload-dp', formData).subscribe(response => {
+      this.http.post<{ dpUrl: string }>('http://localhost:3000/upload-dp', formData).subscribe(response => {
         this.dpUrl = response.dpUrl;
         this.openSnackBar('Display picture uploaded successfully.', 'Close');
       });
@@ -168,16 +209,17 @@ export class ChatStepperUiComponent implements OnInit {
         username: trimmedUsername,
         dpUrl: this.dpUrl,
         mediaType: type === 'image' ? 'image' : 'video', // Determine media type based on 'type' parameter
-        mediaUrl: x
+        mediaUrl: x,
+        roomId: this.navExtras?.roomId
       };
-      this.sendMessageToServer(messageWithMetadata);
+      this.sendMessageToServer(messageWithMetadata, this.navExtras?.roomId);
     });
   }
 
 
-  sendMessageToServer(messageWithMetadata: any): void {
+  sendMessageToServer(messageWithMetadata: any, id: any): void {
     this.socket.emit('message', messageWithMetadata); // Send message with metadata to WebSocket server
-    this.chatsService.sendStopTypingEvent(this.username);
+    this.chatsService.sendStopTypingEvent(this.username, id, this.socket);
   }
 
 
@@ -186,7 +228,7 @@ export class ChatStepperUiComponent implements OnInit {
     const formData: FormData = new FormData();
     formData.append('file', file, file.name);
 
-    const uploadUrl = 'https://common-chat-room-server-1.onrender.com/upload/Media';
+    const uploadUrl = 'http://localhost:3000/upload/Media';
 
     return this.http.post<string>(uploadUrl, formData, {
       headers: new HttpHeaders({
@@ -201,13 +243,20 @@ export class ChatStepperUiComponent implements OnInit {
   private stopTypingTimer: Subscription;
 
   ngAfterViewInit(): void {
-    this.typingSubscription = fromEvent(this.messageInput.nativeElement, 'input')
+
+    if (this.messageInput) {
+      this.typingSubscription = fromEvent(this.messageInput?.nativeElement, 'input')
       .pipe(
         debounceTime(2000) // Wait for 2 seconds of inactivity
       )
       .subscribe(() => {
-        this.chatsService.sendStopTypingEvent(this.username); // Trigger stopTyping event
+        this.chatsService.sendStopTypingEvent(this.username, this.navExtras?.roomId, this.socket); // Trigger stopTyping event
       });
+    }
+    else {
+      console.error('messageInput is not defined');
+    }
+
   }
 
 
@@ -215,18 +264,24 @@ export class ChatStepperUiComponent implements OnInit {
     if (this.stopTypingTimer) {
       this.stopTypingTimer.unsubscribe();
     }
+    // console.log(this.navExtras, " this.navExtras");
 
-    this.chatsService.sendTypingEvent(this.username);
+    this.sendTypingEvent(this.username, this.navExtras?.roomId);
 
     this.stopTypingTimer = fromEvent(this.messageInput?.nativeElement, 'input')
       .pipe(
         debounceTime(2000)
       )
       .subscribe(() => {
-        this.chatsService.sendStopTypingEvent(this.username);
+        this.sendStopTypingEvent(this.username, this.navExtras?.roomId);
       });
   }
-
+  sendTypingEvent(username: string, id: any): void {
+    this.socket.emit('typing', username, id);
+  }
+  sendStopTypingEvent(username: string, id: any): void {
+    this.socket.emit('stopTyping', username, id);
+  }
 
   toggleReactionMenu(message: Message): void {
     message.showReactionMenu = !message.showReactionMenu; // Toggle menu state
@@ -260,13 +315,13 @@ export class ChatStepperUiComponent implements OnInit {
 
   likeMessage(message: any): void {
     console.log(`Liked message: ${message.message}`);
-    this.chatsService.sendReaction(message, 'like'); // Assuming 'id' exists in your message object
+    this.chatsService.sendReaction(message, 'like', this.socket, this.navExtras["roomId"]); // Assuming 'id' exists in your message object
     this.closeAllContextMenusExcept(null);
   }
 
   loveMessage(message: any): void {
     console.log(`Loved message: ${message.message}`);
-    this.chatsService.sendReaction(message, 'love');
+    this.chatsService.sendReaction(message, 'love', this.socket, this.navExtras["roomId"]);
 
     this.closeAllContextMenusExcept(null);
   }
@@ -275,7 +330,7 @@ export class ChatStepperUiComponent implements OnInit {
     console.log(message, "message");
 
     // console.log(`Laughed at message: ${message.message}`);
-    this.chatsService.sendReaction(message, 'laugh');
+    this.chatsService.sendReaction(message, 'laugh', this.socket, this.navExtras["roomId"]);
 
     this.closeAllContextMenusExcept(null);
   }
@@ -303,9 +358,9 @@ export class ChatStepperUiComponent implements OnInit {
 
 
   deleteMessage(message: any) {
-    console.log(message, "message deletinf");
-
-    this.chatsService.deleteMessage(message.id);
+    message.editing = false
+    // console.log(message, "message deletinf");
+    this.chatsService.deleteMessage(message.id, this.socket, this.navExtras["roomId"]);
     // Optionally, update messages array or UI immediately for instant feedback
   }
 
@@ -334,15 +389,26 @@ export class ChatStepperUiComponent implements OnInit {
     msg.editedMessage = msg.message; // Initialize edited message with current message content
   }
 
+  // saveMessage(index: number) {
+  //   // console.log("saveMessage");
+  //   const editedMessage = this.messages[index].editedMessage;
+  //   const messageId = this.messages[index].id;
+  //   this.chatsService.editMessage(messageId, editedMessage, this.socket, this.navExtras["roomId"]); // Send edit request to backend
+  //   this.messages[index].editing = false; // Exit edit mode
+
+  // }
+
+
   saveMessage(index: number) {
-    console.log("saveMessage");
-
     const editedMessage = this.messages[index].editedMessage;
+    const originalMessage = this.messages[index].message; // Assuming 'message' holds the original content
     const messageId = this.messages[index].id;
-    this.chatsService.editMessage(messageId, editedMessage); // Send edit request to backend
+    if (editedMessage !== originalMessage) {
+      this.chatsService.editMessage(messageId, editedMessage, this.socket, this.navExtras["roomId"]); // Send edit request to backend
+    }
     this.messages[index].editing = false; // Exit edit mode
-
   }
+
 
   cancelEdit(index: number) {
     this.messages[index].editing = false; // Exit edit mode
@@ -354,17 +420,22 @@ export class ChatStepperUiComponent implements OnInit {
       // Replace double backslashes with single backslashes if necessary
       mediaUrl = mediaUrl.replace(/\\/g, '/'); // Replace '\\' with '/'
       // Assuming mediaUrl is relative, concatenate it with the base URL
-      return 'https://common-chat-room-server-1.onrender.com/' + mediaUrl;
+      return 'http://localhost:3000/' + mediaUrl;
     } else {
       // Return a placeholder or handle the null case as per your application's requirement
-      return 'https://common-chat-room-server-1.onrender.com/default-placeholder.jpg';
+      return 'http://localhost:3000default-placeholder.jpg';
     }
   }
 
 
   getAllMessages() {
-    this.chatsService.getAllMsgs();
-
+    this._snackBar.open('Messages are being fetched...', 'Close', {
+      duration: 500, // Duration in milliseconds
+      verticalPosition: 'top', // Position the snackbar at the top
+      horizontalPosition: 'center', // Center the snackbar horizontally
+    });
+    this.showPrevChat = false
+    this.chatsService.getAllMsgs(this.socket, this.navExtras["roomId"]);
   }
   @ViewChild('stepper') stepper: MatStepper;
 
@@ -384,7 +455,140 @@ export class ChatStepperUiComponent implements OnInit {
   openSnackBar(message: string, action: string) {
     return this._snackBar.open(message, action, {
       duration: 3000, // Duration in milliseconds
-      verticalPosition: 'bottom' // Positioning the snackbar
+      verticalPosition: 'top' // Positioning the snackbar
     });
+  }
+
+  chatRoomId: string;
+  chatRoomPassword: string;
+  chatRoomIdFromBackEnd!: string;
+
+
+  step1Completed: boolean = false;
+  step2Completed: boolean = false;
+  step3Completed: boolean = false;
+  joinChatRoom(): any {
+    this.chatsService.joinChatRoom(this.chatRoomId, this.chatRoomPassword).subscribe((res: any) => {
+      console.log(res, "res from joinga room");
+      if (res?.message === "Successfully joined chat room") {
+        this.chatRoomIdFromBackEnd = res?.roomId
+        this.showSuccessSnackBar(res?.message);
+        this.step1Completed = true;
+      }
+
+    }, (err: any) => {
+
+    })
+  }
+
+
+  goToNextStep(step: number) {
+    if (step === 2) {
+      if (this.username) {
+        this.step1Completed = true;
+        this.step2Completed = true;
+      } else {
+        // Handle condition when username is not filled
+        console.log("Please enter your username before proceeding.");
+        return; // Prevents stepper from moving forward
+      }
+    } else if (step === 3) {
+      // Additional conditions for step 3, if needed
+      if (this.step2Completed) {
+        this.step3Completed = true;
+      } else {
+        // Handle condition when step 2 is not completed or file is not selected
+        console.log("Please complete previous steps before proceeding.");
+        return; // Prevents stepper from moving forward
+      }
+    }
+  }
+
+
+  backEndUrl: string = ""
+  apiUrl = 'http://localhost:3000/chat-room'; // Replace with your backend API URL
+
+
+  roomIdFromBackEnd!: any
+  roomIdPassword!: any
+
+
+  createChatRoom(): any {
+    this.chatsService.createChatRoom().subscribe((res: any) => {
+
+      //   {
+      //     "message": "Chat room created successfully",
+      //     "room": {
+      //         "roomId": "473a68e5-f7bf-49da-a84a-71162c202d08",
+      //         "password": "lcm7Fros",
+      //         "_id": "66963e3e18732d1a5a92a2cf",
+      //         "__v": 0
+      //     },
+      //     "password": "lcm7Fros"
+      // }
+      console.log(res, "res for chat room creation");
+      if (res?.message === "Chat room created successfully") {
+        this.roomIdFromBackEnd = res?.room?.roomId;
+        this.roomIdPassword = res?.room?.password;
+        this.showSuccessSnackBarRoomIdCreation(this.roomIdFromBackEnd, this.roomIdPassword);
+
+      }
+      else {
+        this.showFailureSnackBar('Failed to create room. Please try again.');
+      }
+    })
+  }
+  showSuccessSnackBarRoomIdCreation(roomId: string, password: string): void {
+    const message = `Room created successfully! Room ID: ${roomId}, Password: ${password}`;
+    this._snackBar.open(message, 'Close', {
+      duration: -1, // Indefinite duration
+      horizontalPosition: 'center',
+      verticalPosition: 'bottom',
+      panelClass: ['snackbar-success'] // Optional CSS class for styling
+    });
+  }
+  showFailureSnackBar(message: string): void {
+    this._snackBar.open(message, 'Close', {
+      duration: 5000, // 5 seconds
+      horizontalPosition: 'center',
+      verticalPosition: 'bottom',
+      panelClass: ['snackbar-failure'] // Optional CSS class for styling
+    });
+  }
+
+
+  private showSuccessSnackBar(message: string): void {
+    this._snackBar.open(message, 'Close', {
+      duration: 3000, // Duration in milliseconds
+      horizontalPosition: 'center',
+      verticalPosition: 'top',
+      panelClass: ['snackbar-success'] // Optional CSS class for styling
+    });
+  }
+  private typingSubject = new Subject<string>();
+  typing$ = this.typingSubject.asObservable();
+
+
+
+  changeRoute() {
+    // this.router.navigate(['chat//ui']); // Navigate to '/another-page'\
+  }
+
+  showTopSnackBar(message: string, action: string) {   // Method to show a snackbar with custom position
+    this._snackBar.open(message, action, {
+      duration: 2000, // Snackbar duration in milliseconds
+      verticalPosition: 'top', // Position the snackbar at the top
+    });
+  }
+
+  menuOpen: boolean = false;
+  onMenuButtonClick(event: MouseEvent): void {
+    if (this.menuOpen) {
+      event.stopPropagation(); // Prevents event from reaching other elements
+    }
+  }
+
+  onMenuClosed(): void {
+    this.menuOpen = false;
   }
 }

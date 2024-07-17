@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 
 import { ChatsRoutingModule } from './chats-routing.module';
 import { ChatRromComponent } from './components/chat-rrom/chat-rrom.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ChatUiComponent } from './components/chat-ui/chat-ui.component';
 import { DateFormatPipe } from './pipes/dates/dates.pipe';
 import { MaterialModule } from '../material/material.module';
@@ -13,8 +13,12 @@ import { ChatStepperUiComponent } from './components/chat-stepper-ui/chat-steppe
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Chats2Component } from './components/chats2/chats2.component';
 import { MatCardModule } from '@angular/material/card';
+// import { MatProgressSpinnerModule } from '@angular/material';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { ChatIdComponent } from './components/chat-id/chat-id.component';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @NgModule({
   providers: [],
@@ -24,12 +28,14 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     DateFormatPipe,
     FileUploadDialogComponent,
     ChatStepperUiComponent,
-    Chats2Component
+    Chats2Component,
+    ChatIdComponent
   ],
   imports: [
-    CommonModule, MaterialModule, MatMenuModule, MatSnackBarModule, MatCardModule, MatFormFieldModule,
-    ChatsRoutingModule, FormsModule // Add FormsModule to imports array
+    MatProgressSpinnerModule, MatProgressBarModule, ReactiveFormsModule, CommonModule, MaterialModule, MatMenuModule, MatSnackBarModule, MatCardModule, MatFormFieldModule,
+    ChatsRoutingModule, FormsModule// Add FormsModule to imports array
 
-  ]
+  ],
+  exports: []
 })
 export class ChatsModule { }

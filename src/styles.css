@@ -2,3 +2,10 @@
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+/* In your global styles or component-specific stylesheet */
+.no-close-button .mat-snack-bar-action {
+    display: none;
+    /* Hide the close button */
+    pointer-events: none;
+    /* Disable user interaction */
+}

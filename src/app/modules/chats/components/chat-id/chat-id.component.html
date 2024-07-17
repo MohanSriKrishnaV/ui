@@ -1,0 +1,33 @@
+<div class="intro-container">
+    <ng-template matStepLabel>Introduction</ng-template>
+    <p class="intro-text">Welcome to our chat application!</p>
+    <p class="intro-subtext">Please provide your information to get started.</p>
+    <mat-tab-group class="tab-group">
+        <mat-tab label="Join a Chat Room">
+            <ng-template mat-tab-label>
+                <mat-icon>group</mat-icon>
+                Join a Chat Room
+            </ng-template>
+            <div class="tab-content">
+                <div class="input-container">
+                    <input class="mat-input" type="text" placeholder="Chat Room ID" [(ngModel)]="chatRoomId">
+                </div>
+                <div class="input-container">
+                    <input class="mat-input" type="password" placeholder="Password" [(ngModel)]="chatRoomPassword">
+                </div>
+                <button mat-button color="primary" class="action-button" (click)="joinChatRoom()">Join Chat
+                    Room</button>
+            </div>
+        </mat-tab>
+        <mat-tab label="Create a Chat Room">
+            <ng-template mat-tab-label>
+                <mat-icon>add_circle</mat-icon>
+                Create a Chat Room
+            </ng-template>
+            <div class="tab-content">
+                <button mat-raised-button color="primary" class="action-button" (click)="createChatRoom()">Create a New
+                    Chat Room</button>
+            </div>
+        </mat-tab>
+    </mat-tab-group>
+</div>
