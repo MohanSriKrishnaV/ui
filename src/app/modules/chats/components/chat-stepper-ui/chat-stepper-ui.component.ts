@@ -59,7 +59,7 @@ export class ChatStepperUiComponent implements OnInit {
   makeConnections() {
 
     if (this.navExtras?.roomId) {
-      this.socket = io('http://localhost:3000', {
+      this.socket = io('https://common-chat-room-server-2.onrender.com', {
         query: {
           roomId: this.navExtras?.roomId
         }
@@ -163,7 +163,7 @@ export class ChatStepperUiComponent implements OnInit {
       const formData = new FormData();
       formData.append('file', this.selectedFile);
 
-      this.http.post<{ dpUrl: string }>('http://localhost:3000/upload-dp', formData).subscribe(response => {
+      this.http.post<{ dpUrl: string }>('https://common-chat-room-server-2.onrender.com/upload-dp', formData).subscribe(response => {
         this.dpUrl = response.dpUrl;
         this.openSnackBar('Display picture uploaded successfully.', 'Close');
       });
@@ -228,7 +228,7 @@ export class ChatStepperUiComponent implements OnInit {
     const formData: FormData = new FormData();
     formData.append('file', file, file.name);
 
-    const uploadUrl = 'http://localhost:3000/upload/Media';
+    const uploadUrl = 'https://common-chat-room-server-2.onrender.com/upload/Media';
 
     return this.http.post<string>(uploadUrl, formData, {
       headers: new HttpHeaders({
@@ -420,10 +420,10 @@ export class ChatStepperUiComponent implements OnInit {
       // Replace double backslashes with single backslashes if necessary
       mediaUrl = mediaUrl.replace(/\\/g, '/'); // Replace '\\' with '/'
       // Assuming mediaUrl is relative, concatenate it with the base URL
-      return 'http://localhost:3000/' + mediaUrl;
+      return 'https://common-chat-room-server-2.onrender.com/' + mediaUrl;
     } else {
       // Return a placeholder or handle the null case as per your application's requirement
-      return 'http://localhost:3000default-placeholder.jpg';
+      return 'https://common-chat-room-server-2.onrender.comdefault-placeholder.jpg';
     }
   }
 
@@ -506,7 +506,7 @@ export class ChatStepperUiComponent implements OnInit {
 
 
   backEndUrl: string = ""
-  apiUrl = 'http://localhost:3000/chat-room'; // Replace with your backend API URL
+  apiUrl = 'https://common-chat-room-server-2.onrender.com/chat-room'; // Replace with your backend API URL
 
 
   roomIdFromBackEnd!: any

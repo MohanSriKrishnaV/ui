@@ -16,7 +16,7 @@ export class ChatsService {
   typing$ = this.typingSubject.asObservable();
   // private socket: Socketl
   constructor(private http: HttpClient, private router: Router) {
-    this.socket = io('http://localhost:3000'); // Replace with your WebSocket server URL
+    this.socket = io('https://common-chat-room-server-2.onrender.com'); // Replace with your WebSocket server URL
     this.socket.on('roomJoined', (response: any) => {
       console.log(`Joined room ${response?.roomId} successfully`);
       // this.changeRoute()
@@ -79,7 +79,7 @@ export class ChatsService {
     // console.log(id, "id");
     socket.emit('getAllMsgs', id);
   }
-  apiUrl = 'http://localhost:3000'; // Replace with your backend API URL
+  apiUrl = 'https://common-chat-room-server-2.onrender.com'; // Replace with your backend API URL
 
   createChatRoom(): Observable<any> {
     const body = {};

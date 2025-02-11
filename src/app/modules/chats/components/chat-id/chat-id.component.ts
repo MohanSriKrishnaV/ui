@@ -18,7 +18,7 @@ export class ChatIdComponent implements OnInit {
   }
 
   backEndUrl: string = ""
-  apiUrl = 'http://localhost:3000/chat-room'; // Replace with your backend API URL
+  apiUrl = 'https://common-chat-room-server-2.onrender.com/chat-room'; // Replace with your backend API URL
 
 
   roomIdFromBackEnd!: any
